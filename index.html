@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>교과서 꼬들 — 문해력 단어 퀴즈</title>
+  <meta name="description" content="초등 교과서 핵심 어휘로 즐기는 한글 풀어쓰기 단어 맞히기 게임. 매일 새 단어로 도전하세요!">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app-container">
+
+    <!-- ═══════════════════════════════════════════
+         헤더
+         ═══════════════════════════════════════════ -->
+    <header>
+      <div class="header-left">
+        <h1 id="logo">교과서 꼬들</h1>
+        <span class="header-attribution">한국어 꼬들(kordle.kr) 규칙 기반</span>
+      </div>
+      <div class="header-icons">
+        <button id="theme-btn"  class="icon-btn" title="테마 변경">🌓</button>
+        <button id="study-btn"  class="icon-btn locked" title="꼬들 완료 후 공부 모드를 열 수 있어요">📖</button>
+        <button id="stats-btn"  class="icon-btn" title="게임 통계">📊</button>
+        <button id="help-btn"   class="icon-btn" title="게임 방법">❓</button>
+      </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════
+         게임판
+         ═══════════════════════════════════════════ -->
+    <div id="board-wrapper">
+      <div id="board"></div>
+    </div>
+
+    <!-- 힌트 버튼 -->
+    <div id="hint-trigger-area">
+      <button id="hint-btn-trigger">💡 힌트 보기 (0/3)</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         가상 키보드
+         ═══════════════════════════════════════════ -->
+    <div id="keyboard">
+      <div class="keyboard-row">
+        <button class="key" data-key="ㅂ">ㅂ</button>
+        <button class="key" data-key="ㅈ">ㅈ</button>
+        <button class="key" data-key="ㄷ">ㄷ</button>
+        <button class="key" data-key="ㄱ">ㄱ</button>
+        <button class="key" data-key="ㅅ">ㅅ</button>
+        <button class="key" data-key="ㅛ">ㅛ</button>
+        <button class="key" data-key="ㅕ">ㅕ</button>
+        <button class="key" data-key="ㅑ">ㅑ</button>
+      </div>
+      <div class="keyboard-row">
+        <button class="key" data-key="ㅁ">ㅁ</button>
+        <button class="key" data-key="ㄴ">ㄴ</button>
+        <button class="key" data-key="ㅇ">ㅇ</button>
+        <button class="key" data-key="ㄹ">ㄹ</button>
+        <button class="key" data-key="ㅎ">ㅎ</button>
+        <button class="key" data-key="ㅗ">ㅗ</button>
+        <button class="key" data-key="ㅓ">ㅓ</button>
+        <button class="key" data-key="ㅏ">ㅏ</button>
+        <button class="key" data-key="ㅣ">ㅣ</button>
+      </div>
+      <div class="keyboard-row">
+        <button class="key wide" data-key="ENTER">입력</button>
+        <button class="key" data-key="ㅋ">ㅋ</button>
+        <button class="key" data-key="ㅌ">ㅌ</button>
+        <button class="key" data-key="ㅊ">ㅊ</button>
+        <button class="key" data-key="ㅍ">ㅍ</button>
+        <button class="key" data-key="ㅠ">ㅠ</button>
+        <button class="key" data-key="ㅜ">ㅜ</button>
+        <button class="key" data-key="ㅡ">ㅡ</button>
+        <button class="key wide" data-key="BACKSPACE">삭제</button>
+      </div>
+    </div>
+
+    <!-- 관리자 링크 (작은 텍스트) -->
+    <div id="page-footer">
+      <span id="admin-link">관리자</span>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         힌트 서랍 패널
+         ═══════════════════════════════════════════ -->
+    <div id="hint-panel">
+      <div class="hint-header">
+        <h3>💡 단어 힌트</h3>
+        <button id="hint-close-btn" class="icon-btn">✕</button>
+      </div>
+      <div class="hint-content">
+        <div class="hint-stage" id="hint-stage-1">
+          <span class="hint-stage-title">1단계 — 글자 수</span>
+          <span class="hint-stage-body" id="hint-body-1">—</span>
+        </div>
+        <div class="hint-stage" id="hint-stage-2">
+          <span class="hint-stage-title">2단계 — 초성 힌트</span>
+          <span class="hint-stage-body" id="hint-body-2">—</span>
+        </div>
+        <div class="hint-stage" id="hint-stage-3">
+          <span class="hint-stage-title">3단계 — 단어 뜻</span>
+          <span class="hint-stage-body" id="hint-body-3">—</span>
+        </div>
+        <button id="hint-unlock-btn">1단계 힌트 열기</button>
+      </div>
+    </div>
+
+    <!-- 토스트 -->
+    <div id="toast"></div>
+
+    <!-- ═══════════════════════════════════════════
+         도움말 모달
+         ═══════════════════════════════════════════ -->
+    <div id="help-modal" class="modal">
+      <div class="modal-content">
+        <button class="modal-close" id="help-close">✕</button>
+        <h2>❓ 게임 방법</h2>
+        <div class="help-section">
+          <p>교과서에 나오는 핵심 단어를 <strong>자모 단위로 풀어써서</strong> 6번 안에 맞혀보세요!</p>
+          <p><strong>예시:</strong> 단어 <strong>'인권'</strong>은 ㅇ·ㅣ·ㄴ·ㄱ·ㅜ·ㅓ·ㄴ = 총 <strong>7칸</strong>으로 구성됩니다. 단어에 따라 5~7칸으로 자동 조절됩니다.</p>
+          <p><strong>복합 자모 처리:</strong> 쌍자음(ㄲ→ㄱ+ㄱ), 이중모음(ㅐ→ㅏ+ㅣ), 겹받침(ㄺ→ㄹ+ㄱ)은 기본 단위로 분해됩니다.</p>
+          <div class="help-examples">
+            <div class="example-row">
+              <div class="tile correct">ㄱ</div>
+              <p><strong>ㄱ</strong>이 정답에 있고 위치도 정확합니다.</p>
+            </div>
+            <div class="example-row">
+              <div class="tile present">ㅇ</div>
+              <p><strong>ㅇ</strong>이 정답에 있지만 위치가 다릅니다.</p>
+            </div>
+            <div class="example-row">
+              <div class="tile absent">ㅅ</div>
+              <p><strong>ㅅ</strong>은 정답에 없습니다.</p>
+            </div>
+          </div>
+          <p>💡 <strong>힌트 버튼</strong>을 누르면 3단계 힌트를 순서대로 열 수 있습니다.</p>
+          <p>📖 <strong>공부 모드</strong>는 오늘의 꼬들을 완료한 뒤 열립니다.</p>
+          <p>🕛 매일 자정(KST)에 새로운 단어가 등장합니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         통계 모달
+         ═══════════════════════════════════════════ -->
+    <div id="stats-modal" class="modal">
+      <div class="modal-content">
+        <button class="modal-close" id="stats-close">✕</button>
+        <h2>📊 게임 통계</h2>
+        <div class="stats-grid">
+          <div class="stat-box"><span class="stat-val" id="stats-played">0</span><span class="stat-lbl">총 게임</span></div>
+          <div class="stat-box"><span class="stat-val" id="stats-winpct">0%</span><span class="stat-lbl">승률</span></div>
+          <div class="stat-box"><span class="stat-val" id="stats-streak">0</span><span class="stat-lbl">연속 정답</span></div>
+          <div class="stat-box"><span class="stat-val" id="stats-maxstreak">0</span><span class="stat-lbl">최대 연속</span></div>
+        </div>
+        <button id="share-btn" class="btn-action btn-green">결과 공유하기 📤</button>
+        <button id="reset-stats-btn" class="btn-action btn-danger">통계 초기화</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         공부 모드 모달
+         ═══════════════════════════════════════════ -->
+    <div id="study-modal" class="modal">
+      <div class="modal-content">
+        <button class="modal-close" id="study-close">✕</button>
+        <h2>📖 공부 모드 — 단어 목록</h2>
+        <div class="study-search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="study-search" placeholder="단어 또는 뜻으로 검색..." autocomplete="off">
+        </div>
+        <p class="study-count-label" id="study-count-label">전체 0개 단어</p>
+        <div class="study-table-wrap">
+          <table id="study-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>단어</th>
+                <th>칸수</th>
+                <th>초성</th>
+                <th>뜻</th>
+              </tr>
+            </thead>
+            <tbody id="study-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         교사 비밀번호 모달
+         ═══════════════════════════════════════════ -->
+    <div id="teacher-pass-modal" class="modal">
+      <div class="modal-content small-modal">
+        <button class="modal-close" id="teacher-pass-close">✕</button>
+        <h2>🔐 교사 인증</h2>
+        <p style="font-size:13px;color:var(--text-sub);margin-bottom:16px;">교사 코드를 입력하세요.</p>
+        <div class="form-group">
+          <label for="teacher-pass-input">교사 코드</label>
+          <input type="password" id="teacher-pass-input" placeholder="교사 코드 입력" autocomplete="off">
+        </div>
+        <div class="error-msg" id="teacher-pass-error">⚠️ 코드가 올바르지 않습니다. 다시 시도해 주세요.</div>
+        <button id="teacher-pass-submit" class="teacher-action-btn" style="margin-top:12px;">확인</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         교사 관리 패널 모달
+         ═══════════════════════════════════════════ -->
+    <div id="teacher-panel-modal" class="modal">
+      <div class="modal-content teacher-panel-content">
+        <button class="modal-close" id="teacher-panel-close">✕</button>
+        <h2>👨‍🏫 교사 관리 패널</h2>
+
+        <!-- 탭 네비게이션 -->
+        <div class="teacher-tabs">
+          <button class="teacher-tab-btn active" data-tab="daily">📅 오늘의 단어</button>
+          <button class="teacher-tab-btn" data-tab="words">📝 단어 목록</button>
+          <button class="teacher-tab-btn" data-tab="password">🔑 비밀번호</button>
+        </div>
+
+        <!-- ── 탭 1: 오늘의 단어 ── -->
+        <div class="teacher-tab-content active" id="tab-daily">
+          <p id="teacher-today-display" style="font-size:13px;color:var(--text-sub);background:var(--bg);padding:10px 12px;border-radius:8px;border:1px solid var(--header-line);margin-bottom:14px;"></p>
+
+          <div class="form-group">
+            <label for="teacher-daily-word">단어 변경 (한글 2~4자, 자모수 5~7개)</label>
+            <input type="text" id="teacher-daily-word" placeholder="예: 문해력" maxlength="4">
+          </div>
+          <div class="form-group">
+            <label for="teacher-daily-def">단어 뜻 (단어 DB에 있으면 자동 입력)</label>
+            <textarea id="teacher-daily-def" placeholder="단어의 뜻을 입력하세요 (선택)" rows="2"></textarea>
+          </div>
+          <button id="teacher-set-daily-btn" class="teacher-action-btn">오늘의 단어 설정하기</button>
+
+          <hr class="section-divider">
+
+          <h4 style="font-size:14px;font-weight:800;margin-bottom:12px;">🔗 커스텀 게임 링크 생성</h4>
+          <div class="form-group">
+            <label for="custom-word">단어</label>
+            <input type="text" id="custom-word" placeholder="예: 인권" maxlength="4">
+          </div>
+          <div class="form-group">
+            <label for="custom-definition">단어 뜻</label>
+            <textarea id="custom-definition" placeholder="단어의 뜻을 입력하세요" rows="2"></textarea>
+          </div>
+          <button id="teacher-generate-btn" class="teacher-action-btn secondary">링크 생성하기 🔗</button>
+          <div class="link-result-container" id="link-result-box">
+            <label>생성된 링크 — 아래를 복사하여 학생들과 공유하세요</label>
+            <input type="text" id="link-copy-input" readonly>
+            <button id="link-copy-btn">📋 복사하기</button>
+          </div>
+        </div>
+
+        <!-- ── 탭 2: 단어 목록 ── -->
+        <div class="teacher-tab-content" id="tab-words">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span id="teacher-wordcount" style="font-size:13px;color:var(--text-sub);font-weight:700;"></span>
+            <button id="teacher-reset-wordlist-btn" style="font-size:11px;color:#ef4444;background:none;border:1px solid #ef4444;border-radius:6px;padding:4px 10px;cursor:pointer;touch-action:manipulation;">기본값으로 초기화</button>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--header-line);border-radius:10px;padding:12px;margin-bottom:12px;">
+            <p style="font-size:11px;font-weight:700;color:var(--text-sub);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">새 단어 추가 (자모수 5~7개)</p>
+            <div class="form-group">
+              <label>단어</label>
+              <input type="text" id="new-word-input" placeholder="예: 소통" maxlength="4">
+            </div>
+            <div class="form-group">
+              <label>뜻</label>
+              <textarea id="new-def-input" placeholder="단어의 뜻을 입력하세요" rows="2"></textarea>
+            </div>
+            <button id="teacher-add-word-btn" class="teacher-action-btn" style="margin-top:4px;">추가하기</button>
+          </div>
+
+          <div id="teacher-wordlist-container" class="teacher-wordlist-scroll"></div>
+        </div>
+
+        <!-- ── 탭 3: 비밀번호 ── -->
+        <div class="teacher-tab-content" id="tab-password">
+          <p style="font-size:13px;color:var(--text-sub);margin-bottom:16px;line-height:1.6;">
+            초기 비밀번호는 <strong>문해력</strong>입니다.<br>변경 후 반드시 메모해 두세요.
+          </p>
+          <div class="form-group">
+            <label for="new-pass-input">새 비밀번호</label>
+            <input type="password" id="new-pass-input" placeholder="새 비밀번호를 입력하세요">
+          </div>
+          <div class="form-group">
+            <label for="confirm-pass-input">비밀번호 확인</label>
+            <input type="password" id="confirm-pass-input" placeholder="한 번 더 입력하세요">
+          </div>
+          <button id="teacher-change-pass-btn" class="teacher-action-btn">비밀번호 변경하기</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- #app-container -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="words.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
