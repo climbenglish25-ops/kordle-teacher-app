@@ -11,18 +11,18 @@ const MAX_ROWS           = 6;
 // ── Supabase 설정 ─────────────────────────────────────────
 const supabaseUrl = 'https://wnkdpuhurluanjljqprg.supabase.co';
 const supabaseKey = 'sb_publishable_wRe2mhCzYpzV0kk5hUWhXw_Jpsx4TIS';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 let DB_WORDS = [];
 let DB_SETTINGS = { teacher_pass: '문해력', daily_word_data: {} };
 
 async function loadSupabaseData() {
   try {
-    const { data: wData } = await supabase.from('words_list').select('*').order('created_at', { ascending: true });
+    const { data: wData } = await supabaseClient.from('words_list').select('*').order('created_at', { ascending: true });
     if (wData && wData.length > 0) DB_WORDS = wData;
     else DB_WORDS = [...WORD_DATABASE];
     
-    const { data: sData } = await supabase.from('app_settings').select('*').eq('id', 1).single();
+    const { data: sData } = await supabaseClient.from('app_settings').select('*').eq('id', 1).single();
     if (sData) {
       if (!sData.daily_word_data) sData.daily_word_data = {};
       DB_SETTINGS = sData;
@@ -683,7 +683,7 @@ async function setTeacherDailyWord() {
   const dateStr = getKSTDateString();
   DB_SETTINGS.daily_word_data[dateStr] = wordObj;
   
-  await supabase.from('app_settings').update({ daily_word_data: DB_SETTINGS.daily_word_data }).eq('id', 1);
+  await supabaseClient.from('app_settings').update({ daily_word_data: DB_SETTINGS.daily_word_data }).eq('id', 1);
   localStorage.removeItem(KEY_STATE_PREFIX + dateStr); // 오늘 게임 초기화
 
   showToast(`✅ 오늘의 단어가 "${wordInput}"(으)로 설정되었습니다!\n학생들이 새로고침하면 반영됩니다.`);
@@ -755,7 +755,7 @@ async function addWordToList() {
   const list = getActiveWordList();
   if (list.some(w => w.word === word)) { showToast('이미 목록에 있는 단어입니다.'); return; }
 
-  const { error } = await supabase.from('words_list').insert({ word, definition: def });
+  const { error } = await supabaseClient.from('words_list').insert({ word, definition: def });
   if (!error) {
     await loadSupabaseData();
     document.getElementById('new-word-input').value = '';
@@ -772,7 +772,7 @@ async function deleteWordFromList(idx) {
   if (list.length <= 1) { showToast('최소 1개 이상의 단어가 필요합니다.'); return; }
   const removed = list[idx];
   
-  const { error } = await supabase.from('words_list').delete().eq('word', removed.word);
+  const { error } = await supabaseClient.from('words_list').delete().eq('word', removed.word);
   if (!error) {
     await loadSupabaseData();
     renderTeacherWordList();
@@ -796,7 +796,7 @@ async function changeTeacherPassword() {
   if (np !== cp)   { showToast('비밀번호가 일치하지 않습니다.'); return; }
   if (np.length < 2){ showToast('비밀번호는 2자 이상이어야 합니다.'); return; }
 
-  const { error } = await supabase.from('app_settings').update({ teacher_pass: np }).eq('id', 1);
+  const { error } = await supabaseClient.from('app_settings').update({ teacher_pass: np }).eq('id', 1);
   if (!error) {
     DB_SETTINGS.teacher_pass = np;
     document.getElementById('new-pass-input').value    = '';
