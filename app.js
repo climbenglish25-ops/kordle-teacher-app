@@ -631,8 +631,9 @@ function openTeacherPassModal() {
 }
 
 function verifyTeacherPass() {
-  const input  = document.getElementById('teacher-pass-input').value;
-  if (input === DB_SETTINGS.teacher_pass) {
+  const input  = document.getElementById('teacher-pass-input').value.trim();
+  const storedPass = (DB_SETTINGS.teacher_pass || '문해력').trim();
+  if (input === storedPass) {
     document.getElementById('teacher-pass-modal').classList.remove('open');
     openTeacherPanel();
   } else {
