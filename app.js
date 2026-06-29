@@ -282,14 +282,22 @@ function setupEventListeners() {
     }
   }, { passive: false });
 
-  // 실물 키보드
+  // 실물 키보드 — 두벌식 레이아웃 기반 (한글 IME 상태 무관하게 동작)
+  const DUBEOLSIK = {
+    'KeyQ':'ㅂ','KeyW':'ㅈ','KeyE':'ㄷ','KeyR':'ㄱ','KeyT':'ㅅ',
+    'KeyY':'ㅛ','KeyU':'ㅕ','KeyI':'ㅑ','KeyO':'ㅐ','KeyP':'ㅔ',
+    'KeyA':'ㅁ','KeyS':'ㄴ','KeyD':'ㅇ','KeyF':'ㄹ','KeyG':'ㅎ',
+    'KeyH':'ㅗ','KeyJ':'ㅓ','KeyK':'ㅏ','KeyL':'ㅣ',
+    'KeyZ':'ㅋ','KeyX':'ㅌ','KeyC':'ㅊ','KeyV':'ㅍ',
+    'KeyB':'ㅠ','KeyN':'ㅜ','KeyM':'ㅡ'
+  };
   window.addEventListener('keydown', e => {
     const tag = document.activeElement.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
     if (isGameOver) return;
-    if (e.key === 'Enter') handleInput('ENTER');
-    else if (e.key === 'Backspace') handleInput('BACKSPACE');
-    else if (/^[ㄱ-ㅎㅏ-ㅣ]$/.test(e.key)) handleInput(e.key);
+    if (e.key === 'Enter') { e.preventDefault(); handleInput('ENTER'); }
+    else if (e.key === 'Backspace') { e.preventDefault(); handleInput('BACKSPACE'); }
+    else if (DUBEOLSIK[e.code]) { e.preventDefault(); handleInput(DUBEOLSIK[e.code]); }
   });
 
   // 관리자 링크 — 교사 비밀번호 모달
@@ -869,6 +877,3 @@ function showToast(msg) {
   clearTimeout(toast._timer);
   toast._timer = setTimeout(() => toast.classList.remove('show'), 2600);
 }
-
-
- 
