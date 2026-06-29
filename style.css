@@ -138,37 +138,38 @@ header h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 20px;
+  padding: 6px 16px;
   overflow: hidden;
 }
 
 #board {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   width: 100%;
-  max-width: 380px;
+  max-width: 340px;
 }
 
 .board-row {
   display: grid;
   grid-template-columns: repeat(var(--cols, 6), 1fr);
-  gap: 5px;
+  gap: 4px;
 }
 
 .tile {
   background: var(--tile-bg);
   border: 2px solid var(--tile-border);
   color: var(--text);
-  font-size: clamp(16px, 4vw, 26px);
+  font-size: clamp(13px, 3.5vw, 22px);
   font-weight: 900;
   font-family: var(--font-body);
-  border-radius: 8px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   user-select: none;
   aspect-ratio: 1;
+  max-height: 52px;
   transition: border-color 0.1s, background 0.3s;
 }
 .tile.pop { animation: pop 0.12s ease; border-color: var(--text); }
@@ -181,15 +182,15 @@ header h1 {
 /* ============================================================
    힌트 트리거 버튼
    ============================================================ */
-#hint-trigger-area { padding: 0 14px 6px; flex-shrink: 0; }
+#hint-trigger-area { padding: 0 14px 4px; flex-shrink: 0; }
 #hint-btn-trigger {
   width: 100%;
-  padding: 10px;
+  padding: 7px;
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
   border: none;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   border-radius: 10px;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(16,185,129,0.2);
@@ -204,10 +205,10 @@ header h1 {
    가상 키보드
    ============================================================ */
 #keyboard {
-  padding: 6px 6px 10px;
+  padding: 4px 6px 8px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   flex-shrink: 0;
 }
 
@@ -221,12 +222,12 @@ header h1 {
   background: var(--key-bg);
   color: var(--key-text);
   border: none;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   font-family: var(--font-body);
-  height: 46px;
+  height: 40px;
   flex: 1;
-  max-width: 46px;
+  max-width: 42px;
   border-radius: 7px;
   cursor: pointer;
   display: flex;
@@ -239,7 +240,7 @@ header h1 {
 }
 .key:hover  { background: var(--key-hover); }
 .key:active { transform: scale(0.93); }
-.key.wide   { max-width: 62px; font-size: 12px; }
+.key.wide   { max-width: 56px; font-size: 11px; }
 .key.correct { background: var(--color-correct); color: white; }
 .key.present { background: var(--color-present); color: white; }
 .key.absent  { background: var(--color-absent);  color: white; }
