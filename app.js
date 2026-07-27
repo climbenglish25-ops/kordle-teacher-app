@@ -837,18 +837,24 @@ function updateStatsModal() {
 }
 
 function shareResult() {
-  const pct     = stats.played > 0 ? Math.round((stats.won / stats.played) * 100) : 0;
-  const dateStr = getKSTDateString();
-  const row     = (isGameOver && tileStatesLog[tileStatesLog.length - 1] &&
-    tileStatesLog[tileStatesLog.length - 1].every(s => s === 'correct'))
-    ? currentRow + 1 : 'X';
-
-  const text = `📚 교과서 꼬들 (${dateStr})\n` +
-               `${row}/${MAX_ROWS} 시도 · 힌트 ${hintsUsed}/3단계\n` +
-               `통계 ${stats.played}판 / 승률 ${pct}%\n\n` +
-               `kordle.kr 규칙 기반 🇰🇷\n` +
-               `${location.origin}${location.pathname}`;
-
+  // 오늘의 단어, 완료 날짜(시간 포함), 시도 횟수/6, 날씨 이모지, 색깔 네모 그리드
+  const date = new Date(Date.now() + KST_OFFSET);
+  const dateStr = date.toISOString().slice(0, 10);
+  const timeStr = date.toTimeString().slice(0,5);
+  const solved = isGameOver && tileStatesLog.length > 0 && tileStatesLog[tileStatesLog.length-1].every(s => s === 'correct');
+  const attempt = solved ? currentRow + 1 : 'X';
+  let weatherEmoji = '💧';
+  if (attempt !== 'X') {
+    const num = Number(attempt);
+    if (num <= 4) weatherEmoji = '☀️';
+    else if (num <= 6) weatherEmoji = '☁️';
+  }
+  const lines = tileStatesLog.map(row => row.map(state => {
+    if (state === 'correct') return '🟩';
+    if (state === 'present') return '🟨';
+    return '⬜️';
+  }).join('')).join('\n');
+  const text = `오늘의 단어: ${solution.word}\n완료 날짜: ${dateStr} ${timeStr}\n${attempt}/6 ${weatherEmoji}\n${lines}`;
   navigator.clipboard.writeText(text)
     .then(() => showToast('결과가 클립보드에 복사되었습니다!'))
     .catch(() => showToast('복사에 실패했습니다.'));
