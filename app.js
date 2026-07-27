@@ -840,7 +840,7 @@ function shareResult() {
   // 오늘의 단어, 완료 날짜(시간 포함), 시도 횟수/6, 날씨 이모지, 색깔 네모 그리드
   const date = new Date(Date.now() + KST_OFFSET);
   const dateStr = date.toISOString().slice(0, 10);
-  const timeStr = date.toTimeString().slice(0,5);
+  const timeStr = date.toISOString().slice(11, 16);
   const solved = isGameOver && tileStatesLog.length > 0 && tileStatesLog[tileStatesLog.length-1].every(s => s === 'correct');
   const attempt = solved ? currentRow + 1 : 'X';
   let weatherEmoji = '💧';
