@@ -6,31 +6,39 @@ const KST_OFFSET         = 9 * 60 * 60 * 1000;   // UTC+9
 const KEY_STATE_PREFIX   = 'kordle-state-';       // + YYYY-MM-DD
 const KEY_STATS          = 'kordle-stats';
 const KEY_THEME          = 'kordle-theme';
+const KEY_WORDS          = 'kordle-words';
+const KEY_SETTINGS       = 'kordle-settings';
 const MAX_ROWS           = 6;
-
-// ── Supabase 설정 ─────────────────────────────────────────
-const supabaseUrl = 'https://wnkdpuhurluanjljqprg.supabase.co';
-const supabaseKey = 'sb_publishable_wRe2mhCzYpzV0kk5hUWhXw_Jpsx4TIS';
-const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 let DB_WORDS = [];
 let DB_SETTINGS = { teacher_pass: '문해력', daily_word_data: {} };
 
-async function loadSupabaseData() {
+function loadLocalData() {
   try {
-    const { data: wData } = await supabaseClient.from('words_list').select('*').order('created_at', { ascending: true });
-    if (wData && wData.length > 0) DB_WORDS = wData;
-    else DB_WORDS = [...WORD_DATABASE];
-    
-    const { data: sData } = await supabaseClient.from('app_settings').select('*').eq('id', 1).single();
-    if (sData) {
-      if (!sData.daily_word_data) sData.daily_word_data = {};
-      DB_SETTINGS = sData;
-    }
+    const wordsRaw = localStorage.getItem(KEY_WORDS);
+    DB_WORDS = wordsRaw ? JSON.parse(wordsRaw) : [...WORD_DATABASE];
   } catch(e) {
-    console.error("Supabase load error:", e);
     DB_WORDS = [...WORD_DATABASE];
   }
+
+  try {
+    const settingsRaw = localStorage.getItem(KEY_SETTINGS);
+    if (settingsRaw) {
+      const parsed = JSON.parse(settingsRaw);
+      DB_SETTINGS = {
+        teacher_pass: parsed.teacher_pass || '문해력',
+        daily_word_data: parsed.daily_word_data || {}
+      };
+    }
+  } catch(e) {}
+}
+
+function saveWordList() {
+  localStorage.setItem(KEY_WORDS, JSON.stringify(DB_WORDS));
+}
+
+function saveSettings() {
+  localStorage.setItem(KEY_SETTINGS, JSON.stringify(DB_SETTINGS));
 }
 
 // ── 게임 상태 ────────────────────────────────────────────
@@ -49,8 +57,8 @@ let stats = { played:0, won:0, currentStreak:0, maxStreak:0, distribution:[0,0,0
 // ============================================================
 // 초기화
 // ============================================================
-window.addEventListener('DOMContentLoaded', async () => {
-  await loadSupabaseData();
+window.addEventListener('DOMContentLoaded', () => {
+  loadLocalData();
   loadStats();
   applyTheme(getPreferredTheme());
   initGame();
@@ -670,7 +678,7 @@ function switchTeacherTab(tabName) {
     c.classList.toggle('active', c.id === `tab-${tabName}`));
 }
 
-async function setTeacherDailyWord() {
+function setTeacherDailyWord() {
   const wordInput = document.getElementById('teacher-daily-word').value.trim();
   const defInput  = document.getElementById('teacher-daily-def').value.trim();
 
@@ -682,7 +690,6 @@ async function setTeacherDailyWord() {
     return;
   }
 
-  // DB에서 뜻 자동 검색
   const dbEntry = getActiveWordList().find(w => w.word === wordInput);
   const wordObj = {
     word: wordInput,
@@ -691,11 +698,10 @@ async function setTeacherDailyWord() {
 
   const dateStr = getKSTDateString();
   DB_SETTINGS.daily_word_data[dateStr] = wordObj;
-  
-  await supabaseClient.from('app_settings').update({ daily_word_data: DB_SETTINGS.daily_word_data }).eq('id', 1);
-  localStorage.removeItem(KEY_STATE_PREFIX + dateStr); // 오늘 게임 초기화
+  saveSettings();
+  localStorage.removeItem(KEY_STATE_PREFIX + dateStr);
 
-  showToast(`✅ 오늘의 단어가 "${wordInput}"(으)로 설정되었습니다!\n학생들이 새로고침하면 반영됩니다.`);
+  showToast(`✅ 오늘의 단어가 "${wordInput}"(으)로 설정되었습니다!\n새로고침하면 반영됩니다.`);
   document.getElementById('teacher-today-display').textContent =
     `현재 오늘의 단어: "${wordInput}" (${dateStr} KST 기준)`;
   document.getElementById('teacher-daily-word').value = '';
@@ -749,7 +755,7 @@ function renderTeacherWordList() {
   });
 }
 
-async function addWordToList() {
+function addWordToList() {
   const word = document.getElementById('new-word-input').value.trim();
   const def  = document.getElementById('new-def-input').value.trim();
 
@@ -764,40 +770,35 @@ async function addWordToList() {
   const list = getActiveWordList();
   if (list.some(w => w.word === word)) { showToast('이미 목록에 있는 단어입니다.'); return; }
 
-  const { error } = await supabaseClient.from('words_list').insert({ word, definition: def });
-  if (!error) {
-    await loadSupabaseData();
-    document.getElementById('new-word-input').value = '';
-    document.getElementById('new-def-input').value  = '';
-    renderTeacherWordList();
-    showToast(`✅ "${word}" 단어가 추가되었습니다.`);
-  } else {
-    showToast('저장 중 오류가 발생했습니다.');
-  }
+  DB_WORDS.push({ word, definition: def });
+  saveWordList();
+  document.getElementById('new-word-input').value = '';
+  document.getElementById('new-def-input').value  = '';
+  renderTeacherWordList();
+  showToast(`✅ "${word}" 단어가 추가되었습니다.`);
 }
 
-async function deleteWordFromList(idx) {
+function deleteWordFromList(idx) {
   const list = getActiveWordList();
   if (list.length <= 1) { showToast('최소 1개 이상의 단어가 필요합니다.'); return; }
   const removed = list[idx];
-  
-  const { error } = await supabaseClient.from('words_list').delete().eq('word', removed.word);
-  if (!error) {
-    await loadSupabaseData();
-    renderTeacherWordList();
-    showToast(`"${removed.word}" 단어가 삭제되었습니다.`);
-  } else {
-    showToast('삭제 중 오류가 발생했습니다.');
-  }
+
+  DB_WORDS = list.filter((_, i) => i !== idx);
+  saveWordList();
+  renderTeacherWordList();
+  showToast(`"${removed.word}" 단어가 삭제되었습니다.`);
 }
 
-async function resetWordlistToDefault() {
-  if (confirm('클라우드 환경에서는 지원되지 않습니다.')) {
-    showToast('오류 방지를 위해 개별 삭제를 이용해 주세요.');
-  }
+function resetWordlistToDefault() {
+  if (!confirm('단어 목록을 기본값으로 되돌릴까요?\n추가했던 단어는 모두 사라집니다.')) return;
+
+  DB_WORDS = [...WORD_DATABASE];
+  saveWordList();
+  renderTeacherWordList();
+  showToast('단어 목록이 기본값으로 초기화되었습니다.');
 }
 
-async function changeTeacherPassword() {
+function changeTeacherPassword() {
   const np = document.getElementById('new-pass-input').value;
   const cp = document.getElementById('confirm-pass-input').value;
 
@@ -805,15 +806,11 @@ async function changeTeacherPassword() {
   if (np !== cp)   { showToast('비밀번호가 일치하지 않습니다.'); return; }
   if (np.length < 2){ showToast('비밀번호는 2자 이상이어야 합니다.'); return; }
 
-  const { error } = await supabaseClient.from('app_settings').update({ teacher_pass: np }).eq('id', 1);
-  if (!error) {
-    DB_SETTINGS.teacher_pass = np;
-    document.getElementById('new-pass-input').value    = '';
-    document.getElementById('confirm-pass-input').value = '';
-    showToast(`✅ 비밀번호가 변경되었습니다. 잘 기억해 두세요!`);
-  } else {
-    showToast('비밀번호 변경 중 오류가 발생했습니다.');
-  }
+  DB_SETTINGS.teacher_pass = np;
+  saveSettings();
+  document.getElementById('new-pass-input').value    = '';
+  document.getElementById('confirm-pass-input').value = '';
+  showToast('✅ 비밀번호가 변경되었습니다. 잘 기억해 두세요!');
 }
 
 // ============================================================
