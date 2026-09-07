@@ -684,12 +684,6 @@ function setTeacherDailyWord() {
 
   if (!wordInput) { showToast('단어를 입력해 주세요.'); return; }
 
-  const jamoCount = getJamoList(wordInput).length;
-  if (jamoCount < 5 || jamoCount > 7) {
-    showToast(`⚠️ "${wordInput}"의 자모수는 ${jamoCount}개입니다.\n5~7개 범위의 단어를 입력해 주세요.`);
-    return;
-  }
-
   const dbEntry = getActiveWordList().find(w => w.word === wordInput);
   const wordObj = {
     word: wordInput,
@@ -713,11 +707,6 @@ function generateCustomLink() {
   const def  = document.getElementById('custom-definition').value.trim();
 
   if (!word) { showToast('단어를 입력해 주세요.'); return; }
-  const jCount = getJamoList(word).length;
-  if (jCount < 5 || jCount > 7) {
-    showToast(`⚠️ 자모수 ${jCount}개. 5~7개 범위의 단어를 입력해 주세요.`);
-    return;
-  }
 
   const enc  = btoa(encodeURIComponent(word));
   const dEnc = btoa(encodeURIComponent(def || '선생님이 준비한 오늘의 낱말입니다.'));
@@ -760,12 +749,6 @@ function addWordToList() {
   const def  = document.getElementById('new-def-input').value.trim();
 
   if (!word || !def) { showToast('단어와 뜻을 모두 입력해 주세요.'); return; }
-
-  const jCount = getJamoList(word).length;
-  if (jCount < 5 || jCount > 7) {
-    showToast(`⚠️ "${word}"의 자모수는 ${jCount}개입니다.\n5~7개 범위만 추가 가능합니다.`);
-    return;
-  }
 
   const list = getActiveWordList();
   if (list.some(w => w.word === word)) { showToast('이미 목록에 있는 단어입니다.'); return; }
