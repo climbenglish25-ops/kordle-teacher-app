@@ -98,8 +98,6 @@ const WORD_DATABASE = [
   { word: "기후",  definition: "오랜 기간에 걸쳐 한 지역에 나타나는 평균적인 날씨" },
   { word: "물질",  definition: "공간을 차지하고 질량을 가지는 모든 실체" },
   { word: "에너지", definition: "일을 할 수 있는 능력으로 열, 빛, 전기 등 여러 형태가 있음" },
-  { word: "생물",  definition: "생명 현상을 가지고 살아가며 번식하는 모든 것" },
-  { word: "생태계", definition: "생물과 주변 환경이 서로 영향을 주고받는 하나의 체계" },
   { word: "환경",  definition: "생물을 둘러싸고 영향을 미치는 모든 자연·사회적 조건" },
   { word: "지층",  definition: "오랜 시간 쌓인 자갈·모래·진흙 등의 층" },
   { word: "화석",  definition: "옛날 생물의 뼈나 흔적이 암석 속에 보존된 것" },
@@ -222,51 +220,15 @@ const WORD_DATABASE = [
   { word: "액체",   definition: "담는 그릇에 따라 모양은 변하지만 부피는 일정한 물질의 상태" },
   { word: "기체",   definition: "일정한 모양이나 부피 없이 공간을 채우는 물질의 상태" },
 
-  // 과학 — 생물과 생태 (초등 5학년 "생물과 환경" 등)
-  { word: "광합성", definition: "식물이 빛을 이용해 스스로 양분을 만드는 과정" },
-  { word: "엽록소", definition: "식물의 잎에서 광합성을 하는 초록색 색소" },
-  { word: "기관",   definition: "특정한 기능을 하는 몸속의 부분 (예: 소화 기관, 호흡 기관)" },
-  { word: "서식지", definition: "생물이 살아가는 일정한 장소" },
-  { word: "먹이사슬", definition: "생물들이 먹고 먹히는 관계로 이어진 사슬" },
-  { word: "생산자", definition: "스스로 양분을 만들어 내는 생물" },
-  { word: "소비자", definition: "다른 생물을 먹이로 삼아 양분을 얻는 생물" },
-  { word: "분해자", definition: "죽은 생물이나 배설물을 분해하는 생물" },
-  { word: "개체",   definition: "하나의 독립된 생명체" },
-  { word: "군집",   definition: "여러 종류의 생물이 함께 모여 사는 무리" },
-  { word: "멸종",   definition: "생물의 한 종류가 완전히 사라지는 일" },
-  { word: "외래종", definition: "원래 살던 곳이 아닌 다른 지역에서 들어온 생물" },
-  { word: "천적",   definition: "어떤 생물을 잡아먹는 다른 생물" },
-
   // 과학 — 지구와 우주 (초등 4~5학년 "화산과 지진", "태양계와 별" 등)
   { word: "화산",   definition: "땅속의 마그마가 분출하여 만들어진 지형" },
   { word: "마그마", definition: "땅속 깊은 곳에서 암석이 녹아 있는 물질" },
   { word: "지진",   definition: "땅속 에너지가 갑자기 방출되어 땅이 흔들리는 현상" },
   { word: "침식",   definition: "물이나 바람이 지표를 깎아 내는 작용" },
   { word: "퇴적",   definition: "자갈, 모래, 진흙 등이 쌓이는 현상" },
-  { word: "태양계", definition: "태양과 그 주위를 도는 행성들로 이루어진 체계" },
-  { word: "행성",   definition: "태양 주위를 도는 둥근 천체" },
-  { word: "위성",   definition: "행성 주위를 도는 천체" },
-  { word: "은하",   definition: "수많은 별들이 모여 이루어진 거대한 천체 집단" },
-  { word: "혜성",   definition: "긴 꼬리를 끌며 태양 주위를 도는 천체" },
-  { word: "일식",   definition: "달이 태양을 가려 태양이 보이지 않게 되는 현상" },
-  { word: "월식",   definition: "지구의 그림자에 달이 가려지는 현상" },
   { word: "밀물",   definition: "바닷물이 육지 쪽으로 밀려 들어오는 현상" },
   { word: "썰물",   definition: "바닷물이 바다 쪽으로 빠져나가는 현상" },
   { word: "강수량", definition: "일정 기간 동안 내린 비나 눈의 양" },
-
-  // 수학 (초등 5~6학년 "약수와 배수", "비와 비율", "여러 가지 그래프" 등)
-  { word: "분수",   definition: "전체를 똑같이 나눈 것 중 몇 개인지 나타내는 수" },
-  { word: "소수",   definition: "0보다 크고 1보다 작은 자리를 점으로 나타낸 수" },
-  { word: "비율",   definition: "기준량에 대해 비교하는 양의 크기" },
-  { word: "백분율", definition: "전체를 100으로 보았을 때의 비율" },
-  { word: "평균",   definition: "여러 수를 더해 그 개수로 나눈 값" },
-  { word: "도형",   definition: "점, 선, 면으로 이루어진 모양" },
-  { word: "각도",   definition: "두 선이 만나 이루는 벌어진 정도" },
-  { word: "넓이",   definition: "평면이 차지하는 공간의 크기" },
-  { word: "부피",   definition: "물체가 차지하는 공간의 크기" },
-  { word: "둘레",   definition: "도형의 테두리를 따라 잰 길이" },
-  { word: "약수",   definition: "어떤 수를 나누어떨어지게 하는 수" },
-  { word: "배수",   definition: "어떤 수를 몇 배 한 수" },
 
   // 사회 — 경제 (초등 6학년 "우리나라의 경제 발전")
   { word: "생산",   definition: "사람이 필요한 물건이나 서비스를 만들어 내는 활동" },
@@ -430,27 +392,6 @@ const WORD_DATABASE = [
   // 안전
   { word: "대피",   definition: "위험을 피해 안전한 곳으로 자리를 옮기는 것" },
 
-  // 수학 — 입체도형
-  { word: "직육면체", definition: "여섯 개의 직사각형 면으로 둘러싸인 입체도형" },
-  { word: "정육면체", definition: "여섯 개의 정사각형 면으로 둘러싸인 입체도형" },
-  { word: "원기둥", definition: "위와 아래가 서로 합동인 원으로 이루어진 둥근 기둥 모양의 입체도형" },
-  { word: "원뿔",   definition: "밑면이 원이고 옆면이 하나의 곡면으로 이루어진 뾰족한 입체도형" },
-  { word: "각기둥", definition: "두 밑면이 서로 합동인 다각형으로 이루어진 기둥 모양의 입체도형" },
-  { word: "각뿔",   definition: "밑면이 다각형이고 옆면이 삼각형인 뾰족한 입체도형" },
-
-  // 수학 — 각과 도형
-  { word: "대칭",   definition: "어떤 도형을 접거나 돌렸을 때 완전히 겹치는 성질" },
-  { word: "둔각",   definition: "90도보다 크고 180도보다 작은 각" },
-  { word: "예각",   definition: "90도보다 작은 각" },
-  { word: "합동",   definition: "모양과 크기가 같아서 완전히 포개어지는 두 도형의 관계" },
-  { word: "비례",   definition: "두 양이 같은 비율로 늘거나 주는 관계" },
-  { word: "정삼각형", definition: "세 변의 길이가 모두 같은 삼각형" },
-
-  // 수학 — 수와 연산 / 자료
-  { word: "통분",   definition: "분모가 다른 분수들을 분모가 같은 분수로 만드는 것" },
-  { word: "약분",   definition: "분모와 분자를 공약수로 나누어 간단히 하는 것" },
-  { word: "그래프", definition: "여러 자료를 점, 선, 막대 등으로 보기 쉽게 나타낸 것" },
-
   // 사회 — 정치
   { word: "국민",   definition: "한 나라를 이루는 사람들" },
   { word: "대표",   definition: "어떤 집단이나 나라를 책임지고 나타내는 사람" },
@@ -518,7 +459,62 @@ const WORD_DATABASE = [
   { word: "평형성", definition: "몸의 균형을 유지하는 능력" },
 
   // 생활
-  { word: "균형",   definition: "어느 한쪽으로 기울지 않고 고른 상태" }
+  { word: "균형",   definition: "어느 한쪽으로 기울지 않고 고른 상태" },
+
+  // ============================================================
+  // 추가 3차 — 공고문·신청서 등 생활 문해력 단어
+  // ============================================================
+
+  // 신청·접수·서류
+  { word: "신청",   definition: "무엇을 해 달라고 정식으로 요청하는 것" },
+  { word: "접수",   definition: "신청서나 서류를 받는 것" },
+  { word: "기간",   definition: "정해진 시작부터 끝까지의 동안" },
+  { word: "기한",   definition: "정해진 시간까지의 한계" },
+  { word: "마감",   definition: "정해진 기간이나 시간을 끝맺는 것" },
+  { word: "대상",   definition: "어떤 일이나 행동이 미치는 상대" },
+  { word: "자격",   definition: "어떤 일을 하는 데 필요한 조건이나 능력" },
+  { word: "서류",   definition: "글이나 그림 등으로 내용을 적은 문서" },
+  { word: "발급",   definition: "증명서나 서류 등을 만들어 내주는 것" },
+  { word: "제출",   definition: "서류나 물건 등을 내는 것" },
+  { word: "신분증", definition: "자기 자신임을 증명하는 카드나 문서" },
+  { word: "증명서", definition: "어떤 사실을 증명하는 문서" },
+  { word: "등록",   definition: "이름이나 정보를 문서나 대장에 올리는 것" },
+  { word: "가입",   definition: "조직이나 단체에 들어가는 것" },
+  { word: "동의",   definition: "다른 사람의 의견에 뜻을 같이 하는 것" },
+  { word: "서명",   definition: "자기 이름을 써넣는 것" },
+
+  // 공고·안내
+  { word: "안내문", definition: "어떤 내용을 알려 주기 위해 쓴 글" },
+  { word: "공지",   definition: "여러 사람에게 널리 알리는 것" },
+  { word: "공고",   definition: "국가나 단체가 일반에게 널리 알리는 글" },
+  { word: "문의",   definition: "모르거나 궁금한 것을 물어보는 것" },
+  { word: "담당자", definition: "어떤 일을 맡아서 하는 사람" },
+  { word: "주최",   definition: "행사 등을 계획하여 여는 것" },
+  { word: "참가",   definition: "모임이나 단체, 행사 등에 함께하는 것" },
+  { word: "유의사항", definition: "일을 할 때 주의해야 할 사항" },
+  { word: "규정",   definition: "정해 놓은 규칙" },
+  { word: "게시판", definition: "안내문 등을 붙이는 판" },
+  { word: "민원",   definition: "국민이 행정 기관에 원하는 바를 요청하는 일" },
+  { word: "신고",   definition: "어떤 사실을 관계 기관에 알리는 것" },
+
+  // 소비 생활
+  { word: "환불",   definition: "돈을 도로 돌려주는 것" },
+  { word: "배송",   definition: "물건을 여러 곳에 나누어 보내는 것" },
+  { word: "주문",   definition: "물건을 만들거나 보내 달라고 요구하는 것" },
+  { word: "예약",   definition: "미리 약속하여 정해 두는 것" },
+  { word: "대여",   definition: "물건을 빌려주거나 빌리는 것" },
+  { word: "반납",   definition: "빌린 것을 돌려주는 것" },
+  { word: "분실",   definition: "물건을 잃어버리는 것" },
+
+  // 학교·생활 안내
+  { word: "보호자", definition: "어린이나 노약자를 보살펴 지키는 사람" },
+  { word: "준비물", definition: "미리 갖추어 준비하는 물건" },
+  { word: "지참",   definition: "무엇을 가지고 참여하는 것" },
+  { word: "참석",   definition: "모임이나 행사에 자리를 함께하는 것" },
+  { word: "결석",   definition: "나가야 할 자리에 나가지 않는 것" },
+  { word: "견학",   definition: "실제로 보고 배우기 위해 어떤 곳을 찾아가는 것" },
+  { word: "응시",   definition: "시험을 치르는 것" },
+  { word: "심사",   definition: "자세히 조사하여 등급이나 합격 여부를 가리는 것" }
 ];
 
 if (typeof module !== 'undefined' && module.exports) {
