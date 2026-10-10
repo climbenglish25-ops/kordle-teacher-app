@@ -10,6 +10,11 @@ const KEY_WORDS          = 'kordle-words';
 const KEY_SETTINGS       = 'kordle-settings';
 const MAX_ROWS           = 6;
 
+// 자모 분해 후 남는 단순 자음 14자 / 단순 모음 10자 (words.js의 DECOMPOSE_MAP 기준)
+const SIMPLE_CONSONANTS = new Set(['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']);
+const SIMPLE_VOWELS     = new Set(['ㅏ','ㅑ','ㅓ','ㅕ','ㅗ','ㅛ','ㅜ','ㅠ','ㅡ','ㅣ']);
+function isConsonant(j) { return SIMPLE_CONSONANTS.has(j); }
+
 let DB_WORDS = [];
 let DB_SETTINGS = { teacher_pass: '문해력', daily_word_data: {} };
 
@@ -100,12 +105,12 @@ function getDailyWord() {
     return DB_SETTINGS.daily_word_data[dateStr];
   }
 
-  // 3) 날짜 기반 결정론적 선택 (KST 자정 기준)
+  // 3) 날짜 기반 순차 선택 (KST 자정 기준) — 기기마다 다른 단어가 나오지 않도록
+  //    기기별 커스텀 목록(DB_WORDS)이 아니라 항상 words.js의 고정 배열만 사용
   const epoch   = new Date('2024-01-01T00:00:00+09:00').getTime();
   const todayTs = new Date(dateStr + 'T00:00:00+09:00').getTime();
   const dayNum  = Math.floor((todayTs - epoch) / 86400000);
-  const list    = getActiveWordList();
-  return list[Math.abs(dayNum) % list.length];
+  return WORD_DATABASE[Math.abs(dayNum) % WORD_DATABASE.length];
 }
 
 // ============================================================
@@ -357,8 +362,48 @@ function handleInput(key) {
   else insertLetter(key);
 }
 
+// 한글 음절 생성 규칙 검사 (정답과 무관 — 입력 중인 추측 자체가 초성→중성(→종성)
+// 구조를 지키는지만 확인. 예: 받침(최대 2자) 다음엔 다음 글자의 초성이 올 수 있으므로
+// 자음이 2~3개 연속될 수 있지만, 모음을 한 번도 안 거치고 자음이 2개 연속될 수는 없음)
+function isValidJamoSequence(jamoArr, totalCols) {
+  let consonantRun = 0, vowelRun = 0, seenVowel = false;
+  for (let i = 0; i < jamoArr.length; i++) {
+    const j = jamoArr[i];
+    if (i === 0 && !isConsonant(j)) return false; // 글자는 항상 초성(자음)으로 시작
+    if (isConsonant(j)) {
+      vowelRun = 0;
+      consonantRun++;
+      if (!seenVowel) {
+        // 모음이 아직 없을 때 자음 2개는 쌍자음 초성(ㄲㄸㅃㅆㅉ → 같은 자모 2개)일 때만 허용
+        if (consonantRun === 2 && j !== jamoArr[i - 1]) return false;
+        if (consonantRun > 2) return false;
+      }
+      if (consonantRun > 3) return false;                // 받침(최대2) + 다음 초성(1) = 최대 3
+      if (consonantRun === 3 && i === totalCols - 1) return false; // 자음 3개로 끝맺을 수 없음
+    } else {
+      consonantRun = 0;
+      seenVowel = true;
+      vowelRun++;
+      if (vowelRun > 3) return false; // 겹모음 분해 최대 3자 (예: ㅙ → ㅗㅏㅣ)
+    }
+  }
+  return true;
+}
+
 function insertLetter(letter) {
   if (currentCol >= cols) return;
+
+  const candidate = [...guesses[currentRow].slice(0, currentCol), letter];
+  if (!isValidJamoSequence(candidate, cols)) {
+    const tile = document.getElementById(`tile-${currentRow}-${currentCol}`);
+    tile.classList.remove('shake');
+    void tile.offsetWidth;
+    tile.classList.add('shake');
+    setTimeout(() => tile.classList.remove('shake'), 500);
+    showToast('한글 글자 규칙에 맞지 않는 입력이에요!');
+    return;
+  }
+
   guesses[currentRow][currentCol] = letter;
   const tile = document.getElementById(`tile-${currentRow}-${currentCol}`);
   tile.textContent = letter;
@@ -504,13 +549,12 @@ function handleGameEnd(isWin) {
 // 힌트 시스템
 // ============================================================
 function updateHintButton() {
-  document.getElementById('hint-btn-trigger').textContent = `💡 힌트 보기 (${hintsUsed}/3)`;
+  document.getElementById('hint-btn-trigger').textContent = `💡 힌트 보기 (${hintsUsed}/2)`;
 }
 
 function resetHintPanel() {
   document.getElementById('hint-stage-1').style.display = 'none';
   document.getElementById('hint-stage-2').style.display = 'none';
-  document.getElementById('hint-stage-3').style.display = 'none';
   const btn = document.getElementById('hint-unlock-btn');
   btn.style.display = 'block';
   btn.textContent   = '1단계 힌트 열기';
@@ -525,50 +569,40 @@ function restoreHintState() {
     document.getElementById('hint-stage-2').style.display = 'flex';
     document.getElementById('hint-body-2').textContent = getChoseong(solution.word);
   }
-  if (hintsUsed >= 3) {
-    document.getElementById('hint-stage-3').style.display = 'flex';
-    document.getElementById('hint-body-3').textContent = solution.definition;
-  }
   const btn = document.getElementById('hint-unlock-btn');
-  if (hintsUsed >= 3) {
+  if (hintsUsed >= 2) {
     btn.style.display = 'none';
   } else {
     btn.style.display  = 'block';
-    btn.textContent    = ['1단계 힌트 열기', '2단계 힌트 열기', '3단계 힌트 열기'][hintsUsed];
+    btn.textContent    = ['1단계 힌트 열기', '2단계 힌트 열기'][hintsUsed];
   }
 }
 
 function forceShowAllHints() {
-  hintsUsed = 3;
+  hintsUsed = 2;
   document.getElementById('hint-stage-1').style.display = 'flex';
   document.getElementById('hint-stage-2').style.display = 'flex';
-  document.getElementById('hint-stage-3').style.display = 'flex';
   document.getElementById('hint-body-1').textContent = `${solution.word.length}음절 단어 (${cols}칸)`;
   document.getElementById('hint-body-2').textContent = getChoseong(solution.word);
-  document.getElementById('hint-body-3').textContent = solution.definition;
   document.getElementById('hint-unlock-btn').style.display = 'none';
   updateHintButton();
 }
 
 function unlockNextHint() {
-  if (hintsUsed >= 3) return;
+  if (hintsUsed >= 2) return;
   hintsUsed++;
   updateHintButton();
 
-  const messages = ['', '1단계 힌트(글자 수)가 해제되었습니다.', '2단계 힌트(초성)가 해제되었습니다.', '3단계 힌트(뜻)가 해제되었습니다.'];
+  const messages = ['', '1단계 힌트(글자 수)가 해제되었습니다.', '2단계 힌트(초성)가 해제되었습니다.'];
   showToast(messages[hintsUsed]);
 
   if (hintsUsed === 1) {
     document.getElementById('hint-stage-1').style.display = 'flex';
     document.getElementById('hint-body-1').textContent = `${solution.word.length}음절 단어 (${cols}칸)`;
     document.getElementById('hint-unlock-btn').textContent = '2단계 힌트 열기';
-  } else if (hintsUsed === 2) {
+  } else {
     document.getElementById('hint-stage-2').style.display = 'flex';
     document.getElementById('hint-body-2').textContent = getChoseong(solution.word);
-    document.getElementById('hint-unlock-btn').textContent = '3단계 힌트 열기';
-  } else {
-    document.getElementById('hint-stage-3').style.display = 'flex';
-    document.getElementById('hint-body-3').textContent = solution.definition;
     document.getElementById('hint-unlock-btn').style.display = 'none';
   }
 
